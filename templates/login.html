@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: #1e1e1e;
+            padding: 45px 35px;
+            border-radius: 25px;
+            box-shadow:
+                12px 12px 24px rgba(0, 0, 0, 0.8),        /* deep shadow */
+                -12px -12px 24px rgba(255, 255, 255, 0.08); /* silver highlight */
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            color: #c0c0c0;
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 35px;
+            font-size: 16px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: none;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            font-size: 16px;
+            box-shadow:
+                inset 8px 8px 16px rgba(0, 0, 0, 0.9),
+                inset -8px -8px 16px rgba(255, 255, 255, 0.06);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow:
+                inset 6px 6px 12px rgba(0, 0, 0, 0.95),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+        border: 2px solid;
+    border-image: linear-gradient(135deg, #e6e6e6, #a8a8a8) 1;
+            width: 100%;
+            padding: 16px;
+            background: #1e1e1e;
+            color: #c0c0c0;
+            border: none;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow:
+                8px 8px 16px rgba(0, 0, 0, 0.8),
+                -8px -8px 16px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            color: #e0e0e0;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.85),
+                -6px -6px 12px rgba(255, 255, 255, 0.12);
+        }
+
+        button:active {
+            box-shadow: inset 6px 6px 12px rgba(0,0,0,0.9);
+        }
+
+        .flash {
+            padding: 12px 16px;
+            margin: 15px 0;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.7);
+        }
+
+        .error {
+            background: #3a1a1a;
+            color: #ff9999;
+        }
+
+        .success {
+            background: #1a3a1a;
+            color: #99ff99;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        .register-link a {
+            color: #c0c0c0;
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            color: #e0e0e0;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 35px 25px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h1>Login</h1>
+            <p class="subtitle">Welcome back</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, msg in messages %}
+                        <div class="flash {{ category }}">{{ msg }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <input type="text" name="username" placeholder="Contact Number" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+
+            <div class="register-link">
+                Don't have an account?
+                <a href="{{ url_for('register_page') }}">Register here</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

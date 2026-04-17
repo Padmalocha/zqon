@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{ display_name }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1e1e1e;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.7), -6px -6px 12px rgba(255,255,255,0.05);
+        }
+
+        .back { font-size: 28px; color: #c0c0c0; text-decoration: none; padding: 6px; border-radius: 50%; }
+        .back:hover { background: rgba(255,255,255,0.08); }
+
+        .profile-icon {
+            width: 48px; height: 48px; background: #1e1e1e; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 6px 6px 12px rgba(0,0,0,0.8), -6px -6px 12px rgba(255,255,255,0.08);
+        }
+
+        .profile-icon svg { width: 28px; height: 28px; fill: #c0c0c0; }
+
+        .chat-info { flex: 1; }
+        .display-name { font-size: 19px; font-weight: bold; color: #e0e0e0; }
+        .username-and-lastseen {
+            font-size: 13px; color: #999; display: flex; gap: 8px;
+        }
+        .last-seen { font-size: 12px; color: #777; }
+
+        /* Messages Area */
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px 15px;
+            background: linear-gradient(rgba(30,30,30,0.85), rgba(30,30,30,0.92)),
+                        url('https://tse3.mm.bing.net/th/id/OIP.PxrXN9Dvi6bPnCcSidm8wQHaDt?rs=1&pid=ImgDetMain') center/cover no-repeat fixed;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            position: relative;
+        }
+
+        #messages::before {
+            content: ''; position: absolute; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 1;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 13px 17px;
+            border-radius: 18px;
+            position: relative;
+            z-index: 2;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.6), -2px -2px 6px rgba(255,255,255,0.05);
+        }
+
+        .own {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            align-self: flex-end;
+            border-bottom-right-radius: 6px;
+        }
+
+        .other {
+            background: #252525;
+            align-self: flex-start;
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-text { line-height: 1.45; }
+
+        .message-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            font-size: 11px;
+        }
+
+        .time { opacity: 0.75; }
+        .ticks {
+            font-size: 15px;
+            letter-spacing: 1px;
+            color: #888;
+        }
+        .read { color: #00cc77; }   /* Green when read */
+
+        img { max-width: 100%; border-radius: 12px; margin-top: 8px; }
+
+        /* Input Area */
+        .input-area {
+            background: #1e1e1e;
+            padding: 12px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 -6px 12px rgba(0,0,0,0.7);
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: none;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            font-size: 16px;
+        }
+
+        button {
+            background: #1e1e1e;
+            color: #c0c0c0;
+            border: none;
+            padding: 13px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            min-width: 46px;
+            min-height: 46px;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.8), -5px -5px 10px rgba(255,255,255,0.07);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('contacts_page') }}" class="back">←</a>
+
+        <div class="profile-icon">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </div>
+
+        <div class="chat-info">
+            <div class="display-name">{{ display_name }}</div>
+            <div class="username-and-lastseen">
+                <span>@{{ target }}</span>
+                <span class="last-seen" id="lastSeen">Last seen: loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="messages"></div>
+
+    <div class="input-area">
+        <button onclick="toggleEmoji()">😀</button>
+        <input type="text" id="msgInput" placeholder="Type your message..."
+               onkeypress="if(event.key === 'Enter') sendMsg()">
+        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="sendFile()">
+        <button onclick="document.getElementById('fileInput').click()">🗁</button>
+        <button onclick="sendMsg()">⌯⌲</button>
+    </div>
+
+    <div id="emojiPicker" style="position:absolute; bottom:80px; left:20px; background:#1e1e1e; border-radius:16px; padding:14px; display:none; box-shadow:8px 8px 20px rgba(0,0,0,0.8); max-width:320px; flex-wrap:wrap; gap:10px; z-index:100;"></div>
+
+    <script>
+        const socket = io();
+        const myName = "{{ session['username'] }}";
+        const roomName = "{{ room }}";
+
+        const commonEmojis = ["😀","😂","❤️","😍","🥰","😢","😎","🔥","👍","👎","🙏","🎉","😱","😡","🥳"];
+
+        function loadEmojis() {
+            const picker = document.getElementById('emojiPicker');
+            commonEmojis.forEach(emoji => {
+                const span = document.createElement('span');
+                span.style.fontSize = '26px';
+                span.style.cursor = 'pointer';
+                span.style.padding = '6px';
+                span.textContent = emoji;
+                span.onclick = () => {
+                    document.getElementById('msgInput').value += emoji;
+                    picker.style.display = 'none';
+                };
+                picker.appendChild(span);
+            });
+        }
+
+        function toggleEmoji() {
+            const picker = document.getElementById('emojiPicker');
+            picker.style.display = picker.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function getIndianTime() {
+            const options = { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: '2-digit', hour12: true };
+            return new Intl.DateTimeFormat('en-US', options).format(new Date());
+        }
+
+        // Add message with ticks
+        function addMessage(data, isOwn = false) {
+            const div = document.createElement('div');
+            div.className = `message ${data.username === myName || isOwn ? 'own' : 'other'}`;
+
+            let content = `<div class="message-text">${data.msg}</div>`;
+
+            if (data.msg.includes('<img')) content = data.msg;
+
+            // Tick logic
+            let ticksHTML = '';
+
+if (data.username === myName || isOwn) {
+    if (data.seen) {
+        ticksHTML = `<span class="ticks read">✓✓</span>`;   // ✅ double tick (read)
+    } else {
+        ticksHTML = `<span class="ticks">✓</span>`;         // ✅ single tick (sent)
+    }
+}
+
+            const footer = `
+                <div class="message-footer">
+                    <span class="time">${data.time || getIndianTime()}</span>
+                    ${ticksHTML}
+                </div>
+            `;
+
+            div.innerHTML = content + footer;
+            document.getElementById('messages').appendChild(div);
+            div.scrollIntoView({ behavior: "smooth" });
+        }
+
+        socket.on('connect', () => socket.emit('join', { room: roomName }));
+        socket.on('message', (data) => addMessage(data));
+
+        function sendMsg() {
+            const input = document.getElementById('msgInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Show message immediately with single tick
+            addMessage({ username: myName, msg: text, time: getIndianTime() }, true);
+
+            socket.emit('message', { message: text, room: roomName });
+            input.value = '';
+        }
+
+        function sendFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgHtml = `<img src="${e.target.result}" alt="shared image">`;
+                addMessage({ username: myName, msg: imgHtml, time: getIndianTime() }, true);
+                socket.emit('message', { message: imgHtml, room: roomName });
+            };
+            reader.readAsDataURL(file);
+            fileInput.value = '';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('button[onclick="toggleEmoji()"]') &&
+                !e.target.closest('#emojiPicker')) {
+                document.getElementById('emojiPicker').style.display = 'none';
+            }
+        });
+
+        window.onload = () => {
+            loadEmojis();
+            {% if last_seen %}
+                document.getElementById('lastSeen').textContent = "Last seen: {{ last_seen }}";
+            {% else %}
+                document.getElementById('lastSeen').textContent = "Last seen: Recently";
+            {% endif %}
+        };
+    </script>
+</body>
+</html>

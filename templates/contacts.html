@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Contacts</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        h1 {
+            color: #c0c0c0;
+            text-align: center;
+            font-size: 32px;
+            margin: 25px 0 10px;
+            letter-spacing: 1px;
+        }
+
+        .logged {
+            text-align: center;
+            color: #999;
+            font-size: 15px;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 24px;
+            margin-bottom: 28px;
+            box-shadow:
+                10px 10px 20px rgba(0, 0, 0, 0.75),
+                -10px -10px 20px rgba(255, 255, 255, 0.06);
+        }
+
+        h2 {
+            color: #c0c0c0;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 21px;
+            font-weight: 600;
+        }
+
+        /* Add Contact Form - Neumorphism */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 18px;
+            margin: 8px 0;
+            border-radius: 16px;
+            border: none;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            font-size: 16px;
+            box-shadow:
+                inset 8px 8px 16px rgba(0, 0, 0, 0.9),
+                inset -8px -8px 16px rgba(255, 255, 255, 0.07);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow:
+                inset 6px 6px 12px rgba(0, 0, 0, 0.95),
+                inset -6px -6px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #1e1e1e;
+            color: #c0c0c0;
+            border: none;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 12px;
+            box-shadow:
+                8px 8px 16px rgba(0, 0, 0, 0.8),
+                -8px -8px 16px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            color: #e0e0e0;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.85),
+                -6px -6px 12px rgba(255, 255, 255, 0.12);
+        }
+
+        /* Contact List */
+        .contact-item {
+            background: #1e1e1e;
+            padding: 18px 20px;
+            margin: 12px 0;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.7),
+                -6px -6px 12px rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                8px 8px 16px rgba(0, 0, 0, 0.75),
+                -8px -8px 16px rgba(255, 255, 255, 0.08);
+        }
+
+        .contact-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            position: relative;
+            font-size: 26px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e1e1e;
+            border-radius: 50%;
+            box-shadow:
+                5px 5px 10px rgba(0, 0, 0, 0.8),
+                -5px -5px 10px rgba(255, 255, 255, 0.07);
+        }
+
+        .online-dot {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 14px;
+            height: 14px;
+            background: #00ff88;
+            border-radius: 50%;
+            border: 2px solid #1e1e1e;
+        }
+
+        .contact-name {
+            font-size: 17.5px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .contact-username {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .message-btn {
+            color: #c0c0c0;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 14px;
+            background: #1e1e1e;
+            box-shadow:
+                4px 4px 8px rgba(0, 0, 0, 0.7),
+                -4px -4px 8px rgba(255, 255, 255, 0.07);
+        }
+
+        .message-btn:hover {
+            color: #e0e0e0;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.75),
+                -6px -6px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Flash Messages */
+        .flash {
+            padding: 14px 18px;
+            margin: 15px 0;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: inset 4px 4px 10px rgba(0,0,0,0.7);
+        }
+
+        .error {
+            background: #3a1a1a;
+            color: #ffaaaa;
+        }
+
+        .success {
+            background: #1a3a1a;
+            color: #aaffaa;
+        }
+
+        /* Logout */
+        .logout {
+            text-align: center;
+            margin-top: 35px;
+        }
+
+        .logout a {
+            color: #ff8888;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 12px;
+        }
+
+        .logout a:hover {
+            color: #ffaaaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .box {
+                padding: 22px;
+            }
+            .contact-item {
+                padding: 16px 18px;
+            }
+            .avatar {
+                width: 46px;
+                height: 46px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👋 My Contacts</h1>
+        <p class="logged">Logged in as: <strong>{{ current_user }}</strong></p>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Add New Contact -->
+        <div class="box">
+            <h2>Add New Contact</h2>
+            <form method="POST" action="{{ url_for('add_contact') }}">
+                <div class="input-group">
+                    <input type="text" name="contact_username" placeholder="Enter exact Contact" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" name="display_name" placeholder="Save as name (e.g. Rahul Bhai)">
+                </div>
+                <button type="submit">Add Contact</button>
+            </form>
+        </div>
+
+        <!-- Contacts List -->
+        <div class="box">
+            <h2>Your Contacts ({{ contacts|length }})</h2>
+
+            {% if contacts %}
+                {% for c in contacts %}
+                <div class="contact-item">
+                    <div class="contact-left">
+                        <div class="avatar">
+                            💬
+                            {% if online_status.get(c.contact_username, False) %}
+                                <span class="online-dot"></span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="contact-name">{{ c.display_name }}</div>
+                            <div class="contact-username">@{{ c.contact_username }}</div>
+                        </div>
+                    </div>
+
+                    <a href="{{ url_for('private_chat', target=c.contact_username) }}"
+                       class="message-btn">
+                        Message →
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center; color:#888; padding:50px 20px; font-size:16px;">
+                    No contacts yet.<br><br>
+                    Add someone using their exact username above.
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</body>
+</html>

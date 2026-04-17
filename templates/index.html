@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.80)),
+                        url('/static/images/chat_bg.jpg') center/cover no-repeat fixed;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .content {
+            text-align: center;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 52px;
+            font-weight: 300;
+            margin: 0 0 15px;
+            letter-spacing: 6px;
+            text-shadow: 0 6px 30px rgba(0, 0, 0, 0.85);
+        }
+
+        .tagline {
+            font-size: 22px;
+            color: #ddd;
+            margin-bottom: 70px;
+            font-weight: 300;
+        }
+
+        .loading {
+            color: #ccc;
+            font-size: 17px;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 5px solid rgba(255,255,255,0.25);
+            border-top: 5px solid #fff;
+            border-radius: 50%;
+            animation: spin 1.3s linear infinite;
+            margin: 25px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 40px;
+            }
+            .tagline {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>zqon</h1>
+        <p class="tagline">Connect • Chat • Real-time</p>
+
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Preparing your chat experience...</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto redirect to login page after 3 seconds
+        setTimeout(() => {
+            window.location.href = "{{ url_for('login_page') }}";
+        }, 3000);
+    </script>
+</body>
+</html>

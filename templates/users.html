@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - Live Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #c0c0c0;
+            text-align: center;
+            font-size: 32px;
+            margin: 30px 0 10px;
+            letter-spacing: 1px;
+        }
+
+        .welcome {
+            text-align: center;
+            color: #888;
+            margin-bottom: 35px;
+            font-size: 17px;
+        }
+
+        .box {
+            background: #1e1e1e;
+            padding: 28px;
+            border-radius: 24px;
+            margin-bottom: 30px;
+            box-shadow:
+                12px 12px 24px rgba(0, 0, 0, 0.8),
+                -12px -12px 24px rgba(255, 255, 255, 0.07);
+        }
+
+        h2 {
+            color: #c0c0c0;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        /* Group Chat Button */
+        .group-btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: #1e1e1e;
+            color: #c0c0c0;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 18px;
+            margin: 20px 0 30px;
+            box-shadow:
+                8px 8px 16px rgba(0, 0, 0, 0.8),
+                -8px -8px 16px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .group-btn:hover {
+            color: #e0e0e0;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.85),
+                -6px -6px 12px rgba(255, 255, 255, 0.12);
+        }
+
+        /* User Cards */
+        .card {
+            background: #1e1e1e;
+            padding: 18px 22px;
+            margin: 12px 0;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow:
+                8px 8px 16px rgba(0, 0, 0, 0.75),
+                -8px -8px 16px rgba(255, 255, 255, 0.06);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                10px 10px 20px rgba(0, 0, 0, 0.8),
+                -10px -10px 20px rgba(255, 255, 255, 0.08);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 18px;
+        }
+
+        .chat-link {
+            color: #c0c0c0;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 14px;
+            background: #1e1e1e;
+            box-shadow:
+                5px 5px 10px rgba(0, 0, 0, 0.7),
+                -5px -5px 10px rgba(255, 255, 255, 0.07);
+        }
+
+        .chat-link:hover {
+            color: #e0e0e0;
+            box-shadow:
+                6px 6px 12px rgba(0, 0, 0, 0.75),
+                -6px -6px 12px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Flash Messages */
+        .flash {
+            padding: 14px 18px;
+            margin: 15px 0;
+            border-radius: 14px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: inset 4px 4px 10px rgba(0,0,0,0.7);
+        }
+
+        .error {
+            background: #3a1a1a;
+            color: #ff9999;
+        }
+
+        .success {
+            background: #1a3a1a;
+            color: #99ff99;
+        }
+
+        /* Logout */
+        .logout {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .logout a {
+            color: #ff8888;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .logout a:hover {
+            color: #ffaaaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            .box {
+                padding: 22px;
+            }
+            .card {
+                padding: 16px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👋 Hello, {{ current_user }}!</h1>
+        <p class="welcome">Choose who you want to chat with</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="flash {{ category }}">{{ msg }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Group Chat -->
+        <a href="{{ url_for('group_chat') }}" class="group-btn">
+            💬 Join Group Chat (Everyone)
+        </a>
+
+        <!-- Private Chats -->
+        <div class="box">
+            <h2>Start Private Chat</h2>
+
+            {% if users %}
+                {% for user in users %}
+                <div class="card">
+                    <div class="user-info">
+                        💬 {{ user.username }}
+                    </div>
+                    <a href="{{ url_for('private_chat', target=user.username) }}"
+                       class="chat-link">
+                        Chat Now →
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center; color:#888; padding:40px;">
+                    No other users yet.<br>Register more accounts to start chatting!
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="logout">
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+</body>
+</html>
